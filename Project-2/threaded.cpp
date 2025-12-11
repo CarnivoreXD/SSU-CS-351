@@ -7,6 +7,7 @@
 
 // Header file for the Data template class
 #include "Data.h"
+using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -94,8 +95,20 @@ int main(int argc, char* argv[]) {
     //
     for (size_t id = 0; id < threads.size(); ++id) {
         threads[id] = std::jthread(
-            []() {
-                // Add your implementation here
+            [id, chunkSize, &data, &sums, &barrier ]() {
+                
+                size_t start = id * chunkSize;
+                size_t end = min(chunkSize + start, data.size());
+
+                double sum = 0.0;
+
+                for(size_t i = start; i < end; ++i)
+                {
+                    sum += data[i];
+                }
+
+                sums[id] = sum;
+                
 
                 barrier.arrive_and_wait();
             }

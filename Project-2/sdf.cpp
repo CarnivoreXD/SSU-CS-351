@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "Shapes.h"
-#include "ScopeTimer.h"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -137,15 +137,17 @@ int main(int argc, char* argv[]) {
     //      closing brace :-)   
     //
     for (size_t id = 0; id < threads.size(); ++id) {
-        threads[id] = std::jthread{ []() {
+        threads[id] = std::jthread{ [id, partitions, chunkSize, &insidePoints, &barrier]() {
 
             // C++ 11's random number generation system.  These functions
             //   will generate uniformly distributed unsigned integers in
             //   the range [0, partitions].  The functions are used in the
             //   helper function rand() (implemented as a lambda)
+            
             std::random_device device;
             std::mt19937 generator(device());
             std::uniform_int_distribution<unsigned int> uniform(0.0, partitions);
+            size_t counter = 0;
 
 
                 // Define a helper function to generate random floating-point
@@ -153,10 +155,17 @@ int main(int argc, char* argv[]) {
                 auto rand = [&,partitions]() {
                     return static_cast<double>(uniform(generator)) / partitions;
                 };
-            
+
                 // Generate points inside the volume cube.  First, create uniformly
                 //   distributed points in the range [0.0, 1.0] for each dimension.
-                vec3 p(rand(), rand(), rand());
+                for(size_t i = 0; i < chunkSize; ++i)
+                {
+                    vec3 p(rand(), rand(), rand());
+                    counter += sdf(p);
+                }
+                
+
+                insidePoints[id] = counter;
 
 
             barrier.arrive_and_wait();
@@ -168,6 +177,18 @@ int main(int argc, char* argv[]) {
     //   having the main thread wait on a thread to keep it from exiting
     //
     // (Look in threaded.cpp for hints)
+
+    threads.back().join();
+    size_t volumePoints = 0;
+
+    for (size_t i = 0; i < numThreads; ++i)
+    {
+        volumePoints += insidePoints[i];
+    }
+
+    
+    
+
 
     std::cout << static_cast<double>(volumePoints) / numSamples << "\n";
 }
