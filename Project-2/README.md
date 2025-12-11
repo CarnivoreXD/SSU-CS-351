@@ -1,9 +1,8 @@
 # Project-2: Threading and Multi-Core Applications
 
 
-## "Computing a Mean" Questions
+## "Computing a Mean"
 
-### Q: Create a graph plotting number of threads along the X-axis and speedup along the Y-axis.
 
 ![Threaded Mean Speedup Graph](threaded_speedup.png)
 
@@ -27,26 +26,26 @@
 
 ### Q: For the graph, note the shape of the curve. Does it "converge" to some general value? What's the maximum speedup you got from threading? What happens when you use more cores than are available in the hardware?
 
-**Does it converge?** Yes, the curve converges to approximately 9.2×. After about 16-32 threads, the speedup flattens out and adding more threads provides no additional benefit.
+**Does it converge?** Yes the curve appears to converge around 9.X after about 16-32 threads.
 
 **Maximum speedup:** 9.22× at 32 threads.
 
-**What happens past hardware cores (72)?** When using 84 threads (exceeding the 72 hardware threads), the speedup actually decreases slightly to 8.79×. This is due to thread scheduling overhead—the OS must context switch between more threads than there are physical cores, adding overhead without providing benefit.
+**What happens past hardware cores (72)?** When using 84 threads (exceeding the 72 hardware threads), tthe speedup actually decreases by a bit to 8.79x. I think this is due to thread overhead and there only being 72 cores artificially making 84 which just adds overhead with no actual benefits
 
 ---
 
 ### Q: Considering the number of cores in the system, do you get a linear scaling of performance as you add more cores?
 
-No, scaling is not linear. Linear scaling would give 72× speedup with 72 threads, but we only achieve ~9×. 
+No adding more cores does not provide linear scaling.
 
-The scaling starts near-linear but quickly falls off:
+The scaling starts almost linear but eventually quickly levels out :
 - 2 threads: 1.88× (94% of ideal)
 - 4 threads: 3.45× (86% of ideal)
 - 8 threads: 5.66× (71% of ideal)
 - 16 threads: 8.52× (53% of ideal)
 - 32+ threads: ~9.2× (29% of ideal)
 
-This sub-linear scaling occurs because the mean computation is memory-bound—threads spend most of their time waiting for data from RAM, not computing. Memory bandwidth becomes the bottleneck, not CPU cores.
+This sub-linear scaling is happening the mean computation is bounded by memory which means the threads are spending most of their time waiting for data from RAM and not actually computing. Which places the bottleneck at the memory bandwidth.
 
 ---
 
@@ -62,9 +61,9 @@ Since the speedup plateaus at approximately 9.2×:
 P ≈ 0.89
 ```
 
-**I propose P ≈ 0.89 (89%).**
+**So P ≈ 0.89 (89%)**
 
-This means 89% of the program is parallelizable (the summation loop), while 11% remains serial (thread creation, barrier synchronization, final reduction, and output). I arrived at this value by observing where the speedup curve plateaus and applying the inverse of Amdahl's formula.
+So this means that 89% of the program is able to be parallelized while 11% reamins serial and came to this conclusion by observing where the speedup curve plateaus and applying the inverse of Amdahl's formula.
 
 ---
 
@@ -82,7 +81,7 @@ This means 89% of the program is parallelizable (the summation loop), while 11% 
 | 8       | 1.97       | 17.3             |
 | 32      | 1.21       | 28.1             |
 
-**Is it consistent?** Yes, the bandwidth scales proportionally with speedup. The ratio of bandwidths (28.1 / 3.05 ≈ 9.2) matches the speedup ratio. This confirms the workload is memory-bound. The plateau at ~28 GB/s represents the practical memory bandwidth limit of the system—multiple threads achieve higher effective bandwidth by having multiple memory requests in flight simultaneously.
+**Is it consistent?** Yes, the bandwidth scales in direct proportion to the speedups data I got. The ratio of the peak bandwidth (28.1 GB/s) to the single-thread bandwidth (3.05 GB/s) is about 9.2 which closely matches the maximum speedup achieved. The alignment confirms that the speedup is being throttled by the memory. The plateau at around 28 GB/s reflects the system's memory bandwidth limit. 
 
 ---
 
@@ -119,8 +118,8 @@ This means 89% of the program is parallelizable (the summation loop), while 11% 
 
 **Why the difference?**
 
-- **threaded.out is memory-bound:** Each iteration reads 4 bytes and does minimal computation (one addition). Threads wait on memory, so memory bandwidth is the bottleneck.
+- **threaded.out is memory-bound:** Each iteration reads 4 bytes and does only a single addition. Threads have to wait on memory so memory bandwidth is the bottleneck.
 
-- **sdf.out is compute-bound:** Each iteration generates random numbers and performs many floating-point operations (square roots, multiplications, comparisons). Threads stay busy computing, so CPU cores are the bottleneck.
+- **sdf.out is compute-bound:** Each iteration generates random numbers and performs a lot of floating-point operations. Threads stay active and busy computing so the CPU cores are the bottleneck.
 
-The Monte Carlo volume computation scales much better because it's "embarrassingly parallel"—each sample is independent and requires no shared memory access during computation.
+The Monte Carlo volume computation scales much better because it's "embarrassingly parallel" where each sample is independent and requires no shared memory access during computation.
