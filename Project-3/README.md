@@ -4,19 +4,19 @@ A series of WebGL applications that progressively build upon each other, demonst
 
 ## Versions
 
-### [1. Wireframe Triangle](1-triangle.html)
+### [1. Wireframe Triangle](triangle.html)
 A simple equilateral triangle rendered as a wireframe. Uses `gl_VertexID` and trigonometry to procedurally generate three vertices evenly spaced around a circle. Rendered using `gl.LINE_LOOP`.
 
-### [2. Filled Polygon](2-polygon.html)
+### [2. Filled Polygon](polygon.html)
 A 10-sided convex polygon rendered as a filled shape. Introduces uniform variable `N` to control the number of vertices dynamically. Uses `gl.TRIANGLE_FAN` to create a solid disk-like shape.
 
-### [3. Five-Pointed Star](3-star.html)
+### [3. Five-Pointed Star](star.html)
 A filled five-pointed star shape. Modifies vertex positions based on even/odd `gl_VertexID` to create alternating outer tips (radius 1.0) and inner indentations (radius 0.4). The center vertex is explicitly placed at the origin for the triangle fan.
 
-### [4. Spinning Star](4-spinning.html)
+### [4. Spinning Star](spinningstar.html)
 The same five-pointed star, now animated to rotate continuously. Introduces uniform variable `t` for time, which is added to the angle calculation each frame to create smooth rotation.
 
-### [5. Colorful Star](5-colorful.html) *(Extra Credit)*
+### [5. Colorful Star](spinningstar.html) *(Extra Credit)*
 The rotating star with a color gradient effect. Passes the `radius` value from the vertex shader to the fragment shader, creating a cyan-to-magenta gradient from the center to the tips.
 
 ## How to Run
