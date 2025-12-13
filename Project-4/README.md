@@ -54,9 +54,16 @@ This program is a CUDA implementation of the julia set generator. Each GPU threa
 **Are the results what you expected? Speculate as to why it looks like CUDA isn't a great solution for this problem.**
 
 
+CUDA excels when computation per element is heavy (like the Julia set's iterative loop), when data can stay on the GPU for multiple operations, and when problems are compute-bound rather than memory-bound. The `iota` function meets none of these criteria.
+
+
+I was surprised that the GPU version of iota was slower than the CPU one pretty much at every vector size. I didn't quite understand why it was slower but then I realized that CUDA has fixed overhead from runtime initialization, memory allocation, and kernel launches. For even small vectors this overhead cost is around .1 seconds which in computing terms is very expensive and makes the GPU slower than the CPU for simple tasks.
+
+The iota function itself does very small compuation where each element only requires addition per element. The bottleneck is the memory bandwidth, not the actual computation. Even though the GPU has thousands of cores to compute it provides no advantage when the limiting factor is how fast the data can be written to memory. Aditionally, data has to be transferred between the CPU and GPU which adds even more overhead. Because of all of these factors, CUDA is not a good solution to this specific problem. GPUs are best when computation per element is heavy and when data can stay on the GPU for multiple operations.
+
+
 
 ## Julia Set Image
 
 ![Mandelbrot Set](julia.png)
 
-*The Mandelbrot set, generated with $c = 0 + 0i$, viewing the region from $(-2.1, -2.1)$ to $(2.1, 2.1)$ in the complex plane.*
