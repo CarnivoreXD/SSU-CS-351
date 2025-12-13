@@ -57,6 +57,6 @@ This program is a CUDA implementation of the julia set generator. Each GPU threa
 
 ## Julia Set Image
 
-![Mandelbrot Set](julia.ppm)
+![Mandelbrot Set](julia.png)
 
 *The Mandelbrot set, generated with $c = 0 + 0i$, viewing the region from $(-2.1, -2.1)$ to $(2.1, 2.1)$ in the complex plane.*
