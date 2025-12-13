@@ -180,6 +180,30 @@ void julia(Complex d, Complex center, Color* pixels) {
     //   means you choose your variable names well (just like Phil mentions)
     //   you can pretty much drop in the CPU code, and then do the extra
     //   CUDA bits
+
+
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockDim.y * blockIdx.y + threadIdx.y;
+
+    if (y >= Height || x >= Width)
+    {
+        return;
+    }
+
+
+    Complex c(x * d.x, y * d.y);
+
+    c -= center;
+    Complex z;
+    int counter = 0;
+
+    while ( counter < MaxIterations && magnitude(z) < 2.0)
+    {
+        z = z * z + c;
+        ++counter;
+    }
+
+    pixels[x + y * Width] = setColor(counter);
 };
 
 //----------------------------------------------------------------------------
